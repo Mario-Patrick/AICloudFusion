@@ -24,6 +24,64 @@ In this lab, you will launch a **virtual server** on AWS using Amazon EC2 (Elast
 
 - ✅ Completed **Lab 1A** (AWS account, Identity Center, CLI configured)
 - ✅ AWS CLI authenticated — run `aws sts get-caller-identity` and confirm it returns your account
+- ✅ The **Session Manager plugin** for the AWS CLI installed (instructions below) — this lets you connect to your instance from your own terminal
+
+### Install the Session Manager Plugin
+
+To connect to your EC2 instance from your own terminal (Step 7, Option B), the AWS CLI needs a small add-on called the **Session Manager plugin**. Install it once now.
+
+> **💡 Optional but recommended:** If you plan to connect only through the AWS Console (Step 7, Option A), you can technically skip this. But installing it now means the CLI method works too, and later labs rely on it.
+
+**Windows:**
+
+1. Download the installer: [https://s3.amazonaws.com/session-manager-downloads/plugin/latest/windows/SessionManagerPluginSetup.exe](https://s3.amazonaws.com/session-manager-downloads/plugin/latest/windows/SessionManagerPluginSetup.exe)
+2. Find the downloaded file and **double-click it**, then follow the prompts.
+3. **Close PowerShell and open a new window** so it picks up the newly installed plugin.
+
+**macOS (Intel):** 📋 Copy and paste these commands one at a time:
+
+```bash
+curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/mac/sessionmanager-bundle.zip" -o "sessionmanager-bundle.zip"
+unzip sessionmanager-bundle.zip
+sudo ./sessionmanager-bundle/install -i /usr/local/sessionmanagerplugin -b /usr/local/bin/session-manager-plugin
+```
+
+**macOS (Apple Silicon — M1/M2/M3/M4):** same steps, but the download URL uses `mac_arm64`:
+
+```bash
+curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/mac_arm64/sessionmanager-bundle.zip" -o "sessionmanager-bundle.zip"
+unzip sessionmanager-bundle.zip
+sudo ./sessionmanager-bundle/install -i /usr/local/sessionmanagerplugin -b /usr/local/bin/session-manager-plugin
+```
+
+> Not sure which Mac you have? Click the  Apple menu → **About This Mac**. A "Chip" starting with **Apple** (e.g., Apple M2) means Apple Silicon; an **Intel** processor means use the Intel commands.
+
+**Linux (Ubuntu / Debian):** 📋 Copy and paste:
+
+```bash
+curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
+sudo dpkg -i session-manager-plugin.deb
+```
+
+**Linux (RHEL / CentOS / Fedora):** 📋 Copy and paste:
+
+```bash
+sudo yum install -y https://s3.amazonaws.com/session-manager-downloads/plugin/latest/linux_64bit/session-manager-plugin.rpm
+```
+
+**Verify the installation.** 📋 Copy and paste (all operating systems):
+
+```
+session-manager-plugin
+```
+
+**✅ You should see:**
+
+```
+The Session Manager plugin was installed successfully. Use the AWS CLI to start a session.
+```
+
+> **🔧 If you see `command not found` or `'session-manager-plugin' is not recognized`:** close your terminal and open a brand-new one, then run the verify command again. On Windows, be sure you opened a fresh PowerShell window after the installer finished.
 
 ---
 
@@ -37,10 +95,7 @@ In this lab, you will launch a **virtual server** on AWS using Amazon EC2 (Elast
 
 **Estimated cost for this lab: ~$0.01** (a few cents for the short time the instance runs)
 
->[!CAUTION]
->If you leave the EC2 instance running _by mistake_, a full month would cost roughly **$3.80** (compute plus a small EBS storage charge) — which is exactly why we terminate resources at the end of every lab.
->
->Always check your Billing and Costing service within the console to see if any services are running unexpected costs.
+If you leave the EC2 instance running _by mistake_, a full month would cost roughly **$3.80** (compute plus a small EBS storage charge) — which is exactly why we terminate resources at the end of every lab.
 
 ---
 
@@ -320,7 +375,7 @@ Now you will connect to your virtual server — you'll get a terminal session on
 aws ssm start-session --target <YOUR_INSTANCE_ID> --region us-east-1
 ```
 
-> **Note:** This requires the Session Manager plugin for the AWS CLI. If you get an error, use Option A (the console) instead.
+> **Note:** This uses the Session Manager plugin you installed in the Prerequisites. If you skipped that step or get a plugin error, use Option A (the console) instead.
 
 ---
 
@@ -421,8 +476,7 @@ EC2 is one of the most heavily tested services on the SAA exam. Understanding in
 
 ## Cleanup
 
->[!IMPORTANT]
->**⚠️** Always terminate EC2 instances when you're done. A running instance has increasing costs.
+**⚠️ Important:** Always terminate EC2 instances when you're done. A running instance uses credits.
 
 ### Step 1: Terminate the Instance
 
