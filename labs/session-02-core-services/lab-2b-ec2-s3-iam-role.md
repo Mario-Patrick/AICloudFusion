@@ -25,6 +25,7 @@ This is a real-world pattern — applications running on EC2 frequently need to 
 - ✅ Completed **Lab 1A** (AWS account, CLI configured)
 - ✅ Familiarity with Lab 2A concepts (EC2, IAM roles, Session Manager)
 - ✅ AWS CLI authenticated
+- ✅ *(Optional)* The **Session Manager plugin** installed — see **Lab 2A → Prerequisites → Install the Session Manager Plugin**. This lab connects through the Console (no plugin needed), but the plugin lets you connect from your own terminal too.
 
 ---
 
