@@ -12,7 +12,7 @@
 In this lab, you will build a **complete serverless application** — a web page where you can upload text, have it automatically processed by AWS Lambda, and see the result displayed on the page. This ties together everything from Sessions 1 and 2: S3 static website hosting, Lambda functions, IAM roles, S3 event triggers, and presigned URLs.
 
 **What you will build:**
-- A **static website** hosted on S3 (like Lab 1C) with a file upload form
+- A new **"File Processor" page added to your existing Lab 1C website** (with a file upload form), plus a nav link between the two pages
 - A **presign Lambda function** that generates secure upload URLs for the browser
 - A **Lambda Function URL** so the web page can call the presign function
 - An **input S3 bucket** where uploaded files land
@@ -27,9 +27,9 @@ This is a real-world architecture pattern — serverless web applications that p
 ## Prerequisites
 
 - ✅ Completed **Lab 1A** (AWS account, CLI configured)
-- ✅ Familiarity with S3 static website hosting (Lab 1C)
+- ✅ Completed **Lab 1C** and your website is **still live** (you did not run 1C's cleanup) — this lab adds a page to that existing site. Have your **Lab 1C website bucket name** handy.
 - ✅ AWS CLI authenticated
-- ✅ A text editor for creating files
+- ✅ VS Code installed (from Lab 1B)
 
 ---
 
@@ -64,7 +64,7 @@ This is a real-world architecture pattern — serverless web applications that p
 | `<YOUR_ACCOUNT_ID>` | Your 12-digit AWS account number | `123456789012` |
 | `<INPUT_BUCKET>` | Unique name for input bucket | `jane-doe-pipeline-input` |
 | `<OUTPUT_BUCKET>` | Unique name for output bucket | `jane-doe-pipeline-output` |
-| `<WEBSITE_BUCKET>` | Unique name for website bucket | `jane-doe-pipeline-website` |
+| `<YOUR_WEBSITE_BUCKET>` | Your **existing** website bucket from Lab 1C (reused here) | `jane-doe-cloud-workshop-site` |
 | `<FUNCTION_URL>` | The Lambda Function URL (you'll get this in Step 7) | `https://abc123.lambda-url.us-east-1.on.aws/` |
 
 ---
@@ -169,16 +169,15 @@ code .
 
 ---
 
-### Step 3: Create Three S3 Buckets
+### Step 3: Create Two S3 Buckets
 
-You need three buckets: one for the website, one for file uploads (input), and one for processed results (output).
+You need two **new** buckets: one for file uploads (input) and one for processed results (output). You will **reuse your existing website bucket from Lab 1C** for the web page, so you do not create a website bucket here.
 
 📋 Copy and paste, **replacing the bucket names** with your own unique names:
 
 ```
 aws s3 mb s3://<INPUT_BUCKET> --region us-east-1
 aws s3 mb s3://<OUTPUT_BUCKET> --region us-east-1
-aws s3 mb s3://<WEBSITE_BUCKET> --region us-east-1
 ```
 
 ---
@@ -556,6 +555,7 @@ aws lambda add-permission --function-name workshop-presign --statement-id Functi
 ```
 aws lambda add-permission --function-name workshop-presign --statement-id AllowPublicInvoke --action lambda:InvokeFunction --principal "*" --region us-east-1
 ```
+
 >[!CAUTION]
 >**lambda:InvokeFunction is the general "run this function" permission — Lambda Function URLs require both: InvokeFunctionUrl to authorize the URL endpoint itself, and InvokeFunction to actually execute the function behind it. Without both granted to '*', public access is denied.**
 
@@ -718,54 +718,15 @@ aws s3api put-bucket-policy --bucket <OUTPUT_BUCKET> --policy file://output-poli
 
 ---
 
-### Step 11: Create and Deploy the Website
+### Step 11: Add the Processor Page to Your Website
 
-**Set up the website bucket** (same as Lab 1C):
+Instead of creating a brand-new website, you will add this app as a **new page on the website you built in Lab 1C**. That bucket already has static website hosting and public read access enabled (you set that up in 1C), so there is nothing to configure here — you simply publish one more HTML file to it and link to it from your homepage.
 
-📋 Replace `<WEBSITE_BUCKET>`:
+> **🧭 Did you complete the 1D sidequest (CloudFront + HTTPS)?** Your site is served through CloudFront and the bucket is private. Everything below still works — you upload the new page exactly the same way — but you will need one extra step (a **cache invalidation**) after each upload, and you will use your CloudFront URL to view it. Look for the **"1D path"** notes in Steps 11b, 11c, and 12.
 
-```
-aws s3 website s3://<WEBSITE_BUCKET> --index-document index.html --error-document index.html
-```
+**Step 11a: Create the processor page**
 
-```
-aws s3api put-public-access-block --bucket <WEBSITE_BUCKET> --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
-```
-
-**Step 11a: Create the website bucket policy file**
-
-In the VS Code file tree, create a **New File** named `website-policy.json`. 📋 Copy and paste this into it, **replacing `<WEBSITE_BUCKET>`** with your actual website bucket name:
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "PublicReadGetObject",
-            "Effect": "Allow",
-            "Principal": "*",
-            "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::<WEBSITE_BUCKET>/*"
-        }
-    ]
-}
-```
-
-**Save** the file (**Ctrl+S** / **Cmd+S**).
-
-> **What does this file do?** It tells S3: "Allow anyone on the internet to read (view) files in this bucket." This is what makes your website publicly accessible.
-
-> **⚠️ Make sure** you replaced `<WEBSITE_BUCKET>` with your actual bucket name inside the file before saving.
-
-**Apply the policy.** 📋 Copy and paste, **replacing `<WEBSITE_BUCKET>`**:
-
-```
-aws s3api put-bucket-policy --bucket <WEBSITE_BUCKET> --policy file://website-policy.json
-```
-
-**Step 11b: Create the website HTML file**
-
-In the VS Code file tree, create a **New File** named `index.html`. 📋 Copy and paste this entire block into it, **replacing `<FUNCTION_URL>` and `<OUTPUT_BUCKET>`** with your actual values:
+In the VS Code file tree, create a **New File** named `processor.html`. 📋 Copy and paste this entire block into it, **replacing `<FUNCTION_URL>` and `<OUTPUT_BUCKET>`** with your actual values:
 
 ```html
 <!DOCTYPE html>
@@ -793,6 +754,7 @@ In the VS Code file tree, create a **New File** named `index.html`. 📋 Copy an
     </style>
 </head>
 <body>
+    <p><a href="index.html" style="color:#232f3e;">&#8592; Back to Home</a></p>
     <h1>&#9729; Cloud File Processor</h1>
     <p>Upload a text file and watch it get processed automatically by AWS Lambda.</p>
     <p><span class="badge">Serverless</span> <span class="badge">S3</span> <span class="badge">Lambda</span></p>
@@ -907,25 +869,59 @@ In the VS Code file tree, create a **New File** named `index.html`. 📋 Copy an
 
 ---
 
-**Step 11c: Upload the website**
+**Step 11b: Upload the processor page**
 
-📋 Copy and paste, **replacing `<WEBSITE_BUCKET>`**:
+📋 Copy and paste, **replacing `<YOUR_WEBSITE_BUCKET>`** with your Lab 1C website bucket name:
 
 ```
-aws s3 cp index.html s3://<WEBSITE_BUCKET>/index.html --content-type "text/html" --region us-east-1
+aws s3 cp processor.html s3://<YOUR_WEBSITE_BUCKET>/processor.html --content-type "text/html" --region us-east-1
 ```
+
+> **🧭 1D path (CloudFront):** after uploading, refresh CloudFront's cache so it serves the new page (`<YOUR_DIST_ID>` is the Distribution ID from Lab 1D):
+> ```
+> aws cloudfront create-invalidation --distribution-id <YOUR_DIST_ID> --paths "/*"
+> ```
+
+**Step 11c: Add a link to it from your homepage**
+
+Now add a "File Processor" link to your existing homepage so visitors can find the new page. You will download your current `index.html`, add one link, and re-upload it.
+
+📋 Download your current homepage into this lab folder, **replacing `<YOUR_WEBSITE_BUCKET>`**:
+
+```
+aws s3 cp s3://<YOUR_WEBSITE_BUCKET>/index.html index.html
+```
+
+Open `index.html` in VS Code (it will appear in the file tree). Find the closing `</body>` tag near the bottom and add this line **just above it**:
+
+```html
+<p><a href="processor.html">Go to the File Processor &#8594;</a></p>
+```
+
+**Save** the file (**Ctrl+S** / **Cmd+S**), then re-upload it, **replacing `<YOUR_WEBSITE_BUCKET>`**:
+
+```
+aws s3 cp index.html s3://<YOUR_WEBSITE_BUCKET>/index.html --content-type "text/html" --region us-east-1
+```
+
+> **🧭 1D path (CloudFront):** run the cache invalidation again after re-uploading `index.html`:
+> ```
+> aws cloudfront create-invalidation --distribution-id <YOUR_DIST_ID> --paths "/*"
+> ```
 
 ---
 
 ### Step 12: Test Your Application!
 
-Your website URL is:
+Open your **File Processor** page:
 
 ```
-http://<WEBSITE_BUCKET>.s3-website-us-east-1.amazonaws.com
+http://<YOUR_WEBSITE_BUCKET>.s3-website-us-east-1.amazonaws.com/processor.html
 ```
 
-1. Open this URL in your browser
+> **🧭 1D path (CloudFront):** use your CloudFront address instead — `https://<YOUR_DIST_DOMAIN>/processor.html` (e.g., `https://d123abc.cloudfront.net/processor.html`).
+
+1. Open this URL in your browser (or click the new **File Processor** link on your homepage)
 2. Type some text in the text area
 3. Click **Upload & Process**
 4. Wait 5 seconds — the processed result should appear on the page
@@ -941,7 +937,7 @@ http://<WEBSITE_BUCKET>.s3-website-us-east-1.amazonaws.com
 
 You built a **full-stack serverless application** using 5 AWS services working together:
 
-1. **S3 (Website Bucket)** — hosts your web page
+1. **S3 (your Lab 1C website bucket)** — now hosts the processor page alongside your homepage
 2. **Lambda (Presign Function)** — generates secure upload URLs on demand
 3. **S3 (Input Bucket)** — receives uploaded files
 4. **Lambda (Processor Function)** — automatically processes files when they arrive
@@ -975,7 +971,11 @@ This lab covers event-driven architectures, Lambda triggers, S3 event notificati
 
 ## Cleanup
 
-**⚠️ Important:** Clean up all resources.
+>[!IMPORTANT]
+>**⚠️** Follow these steps to remove the file-processor app.
+
+>[!NOTE]
+> **💰 What if you left it running?** The whole pipeline sits within the always-free tier — Lambda covers 1 million requests/month free, and the near-empty input/output buckets cost only fractions of a cent. Realistically, leaving it in place would cost about **$0.00–$0.01/month**. Even so, it's good practice to remove what you no longer need, so we clean it up below. **We keep your Lab 1C website in place** (it's your site) and only remove the processor's backend and the extra page.
 
 ### Step 1: Remove S3 Notification
 
@@ -998,18 +998,36 @@ aws lambda delete-function --function-name workshop-presign --region us-east-1
 aws lambda delete-function --function-name workshop-processor --region us-east-1
 ```
 
-### Step 3: Empty and Delete All Buckets
+### Step 3: Empty and Delete the Input and Output Buckets
 
-📋 Replace all bucket names:
+Delete only the two buckets you created for this lab. **Do not delete your Lab 1C website bucket** — you are keeping the site.
+
+📋 Replace the bucket names:
 
 ```
 aws s3 rm s3://<INPUT_BUCKET> --recursive
 aws s3 rm s3://<OUTPUT_BUCKET> --recursive
-aws s3 rm s3://<WEBSITE_BUCKET> --recursive
 aws s3 rb s3://<INPUT_BUCKET>
 aws s3 rb s3://<OUTPUT_BUCKET>
-aws s3 rb s3://<WEBSITE_BUCKET>
 ```
+
+### Step 3b: Remove the Processor Page from Your Website
+
+Because the backend is now gone, remove the processor page and the homepage link so your site has no broken buttons.
+
+📋 Delete the processor page, **replacing `<YOUR_WEBSITE_BUCKET>`**:
+
+```
+aws s3 rm s3://<YOUR_WEBSITE_BUCKET>/processor.html
+```
+
+Then re-open your local `index.html` in VS Code, delete the "Go to the File Processor" link line you added in Step 11c, **Save**, and re-upload it:
+
+```
+aws s3 cp index.html s3://<YOUR_WEBSITE_BUCKET>/index.html --content-type "text/html" --region us-east-1
+```
+
+> **🧭 1D path (CloudFront):** run a cache invalidation after these changes so CloudFront stops serving the removed page: `aws cloudfront create-invalidation --distribution-id <YOUR_DIST_ID> --paths "/*"`.
 
 ### Step 4: Delete the IAM Role
 
@@ -1043,7 +1061,7 @@ Remove-Item -Recurse -Force ~\Desktop\workshop-lab-2c
 
 **✅ Checkpoint:**
 1. **Lambda** → Functions → both functions are gone
-2. **S3** → all three buckets are gone
+2. **S3** → the input and output buckets are gone; **your Lab 1C website bucket remains** (with `processor.html` removed)
 3. **IAM** → Roles → `workshop-pipeline-role` is gone
 
 ---
