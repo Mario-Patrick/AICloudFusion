@@ -35,14 +35,14 @@ This is a real-world architecture pattern — serverless web applications that p
 
 ## Cost Notice
 
-| Service | What It Is | Credits Needed |
+| Service | What It Is | Cost |
 |---------|-----------|----------------|
-| AWS Lambda | Serverless compute | 1 million requests/month Free |
-| Amazon S3 | Cloud storage + website hosting | 0.023 per GB |
+| AWS Lambda | Serverless compute | 1 million requests/month always free |
+| Amazon S3 | Cloud storage + website hosting | $0.023 per GB/month |
 | Lambda Function URLs | Public HTTP endpoint for Lambda | Included with Lambda free tier |
 | IAM | Access management | Always Free |
 
-**Estimated cost for this lab: $0.02**
+**Estimated cost for this lab: ~$0.02** (effectively $0.00 if you complete the cleanup steps promptly)
 
 ---
 
@@ -85,13 +85,13 @@ $env:AWS_PROFILE="<YOUR_PROFILE_NAME>"
 export AWS_PROFILE="<YOUR_PROFILE_NAME>"
 ```
 
-We do this to setup the AWS profile name so you don't have to call --profile <YOUR_PROFILE_NAME> after every aws command listed below. Else you would get credentials error.
+We set the AWS profile here so you don't have to add `--profile <YOUR_PROFILE_NAME>` to every command below. Without it, the commands would fail with a credentials error.
 
 ### Step 1b: Connect your CLI to AWS via SSO
 
 Check if your session is still active:
 
-**Note-** You are following on the env file and profile name created in Lab 1a.
+> **Note:** This uses the profile name you created in Lab 1A.
 
 ```
 aws sts get-caller-identity
@@ -109,7 +109,7 @@ Connect to AWS via SSO:
 ```
 aws sso login
 ```
-A new browser should open either authorizating the access (*if you are already logged into the console*) ,or requesting you to log into the console before authorizing the connection.
+A new browser window should open — either authorizing the access automatically (*if you are already logged into the console*), or asking you to log into the console first before authorizing the connection.
 
 ---
 
@@ -157,6 +157,16 @@ pwd
 
 > **💡 From now on, save ALL files you create in this lab to this folder.** When the lab says "save the file," save it here. This is where your terminal is looking for files.
 
+**Step 2c: Open the folder in VS Code**
+
+📋 Copy and paste:
+
+```
+code .
+```
+
+> **What does this do?** This opens VS Code with `workshop-lab-2c` as its **file tree** on the left. This lab creates several files (JSON configs, two Python functions, and an HTML page) — opening the folder now means every file you create lands in the right place. (You set up the `code` command in Lab 1B — if you see `'code' is not recognized`, close and reopen your terminal, or revisit Lab 1B, Step 6.)
+
 ---
 
 ### Step 3: Create Three S3 Buckets
@@ -179,7 +189,7 @@ Both Lambda functions need a role that gives them permission to access S3 and wr
 
 **Step 4a: Create the trust policy file**
 
-Open your text editor and create a **new file**. 📋 Copy and paste this into the file:
+In the VS Code file tree, click the **New File** icon and name the file `lambda-trust-policy.json`. 📋 Copy and paste this into it:
 
 ```json
 {
@@ -196,7 +206,7 @@ Open your text editor and create a **new file**. 📋 Copy and paste this into t
 }
 ```
 
-**Save the file as `lambda-trust-policy.json`** in your `workshop-lab-2c` folder on your Desktop.
+**Save** the file (**Ctrl+S** / **Cmd+S**).
 
 > **What is this file?** It tells AWS "Lambda functions are allowed to use this role." Without it, Lambda can't assume the role's permissions.
 
@@ -236,11 +246,11 @@ Now you will create the first Lambda function. This function's job is simple: wh
 
 ---
 
-**Step 5a: Open your text editor and create a new file**
+**Step 5a: Create a new file in VS Code**
 
-Open your text editor (VS Code, Notepad, or any editor). Create a **new, empty file**.
+In the VS Code file tree, click the **New File** icon and name the file `presign_function.py`.
 
-> **💡 Important:** Make sure you are saving files in your `workshop-lab-2c` folder on your Desktop. If you're not sure which folder that is, type `pwd` in your terminal to confirm.
+> **💡 Important:** The file needs to be inside your `workshop-lab-2c` folder — it will be, since you opened that folder with `code .` in Step 2c. If unsure, check that the file tree header at the top-left shows `workshop-lab-2c`.
 
 ---
 
@@ -279,14 +289,13 @@ def lambda_handler(event, context):
 
 ---
 
-**Step 5c: Save the file as `presign_function.py`**
+**Step 5c: Save the file**
 
-Save the file with the **exact name** `presign_function.py` in your `workshop-lab-2c` folder on your Desktop. The name matters — Lambda uses it to find the code.
+Press **Ctrl+S** (Windows) or **Cmd+S** (Mac) to save. Because you named it in the file tree, it saves straight into `workshop-lab-2c`.
 
 > **⚠️ Common mistakes:**
-> - Make sure the file extension is `.py` (not `.py.txt` or `.txt`)
-> - Make sure there are no extra spaces or blank lines at the beginning of the file
-> - If using Notepad on Windows, change "Save as type" to "All Files" before saving, otherwise it may add `.txt` to the end
+> - The name must be exactly `presign_function.py` — Lambda uses it to find the code. Naming it in the file tree with the `.py` ending sets the file type automatically (no stray `.txt`).
+> - Make sure there are no extra spaces or blank lines at the very beginning of the file.
 
 ---
 
@@ -383,9 +392,9 @@ Again — **you do NOT need to know Python.** Just copy the code exactly as show
 
 ---
 
-**Step 6a: Open your text editor and create a new file**
+**Step 6a: Create a new file in VS Code**
 
-Create another **new, empty file** in your text editor. This will be a separate file from the one you created in Step 5.
+In the VS Code file tree, create another **New File** and name it `process_function.py`. This is a separate file from the one you created in Step 5.
 
 ---
 
@@ -434,11 +443,11 @@ def lambda_handler(event, context):
 
 ---
 
-**Step 6c: Save the file as `process_function.py`**
+**Step 6c: Save the file**
 
-Save the file with the **exact name** `process_function.py` in your `workshop-lab-2c` folder on your Desktop.
+Press **Ctrl+S** / **Cmd+S** to save. It saves into `workshop-lab-2c` alongside your other files.
 
-> **⚠️ Same warnings as before:** Make sure the extension is `.py`, not `.py.txt`. Make sure there are no extra spaces at the beginning.
+> **⚠️ Same warnings as before:** The name must be exactly `process_function.py`, and there should be no extra spaces or blank lines at the beginning.
 
 ---
 
@@ -544,11 +553,7 @@ aws lambda create-function-url-config --function-name workshop-presign --auth-ty
 aws lambda add-permission --function-name workshop-presign --statement-id FunctionURLAllowPublicAccess --action lambda:InvokeFunctionUrl --principal "*" --function-url-auth-type NONE --region us-east-1
 ```
 
-```
-aws lambda add-permission --function-name workshop-presign --statement-id AllowPublicInvoke --action lambda:InvokeFunction --principal "*" --region us-east-1
-```
-
-**lambda:InvokeFunction is the general "run this function" permission — Lambda Function URLs require both: InvokeFunctionUrl to authorize the URL endpoint itself, and InvokeFunction to actually execute the function behind it. Without both granted to '*', public access is denied.**
+> **What does this do?** For a Function URL with `--auth-type NONE`, this one permission — `lambda:InvokeFunctionUrl` granted to `*` — is what lets the public call the function through its URL. That is all a Function URL needs; you do **not** also grant the broader `lambda:InvokeFunction`, which is used for other invoke paths (like the SDK or the S3 trigger you set up in Step 8) rather than the URL.
 
 > **⏳ Wait 1–2 minutes** for the permission to propagate before testing.
 
@@ -572,7 +577,7 @@ aws lambda add-permission --function-name workshop-processor --statement-id s3-t
 
 **Step 8b: Create the notification configuration file**
 
-Open your text editor and create a **new file**. 📋 Copy and paste this into the file, **replacing `<YOUR_ACCOUNT_ID>`** with your 12-digit account number:
+In the VS Code file tree, create a **New File** named `s3-notification.json`. 📋 Copy and paste this into it, **replacing `<YOUR_ACCOUNT_ID>`** with your 12-digit account number:
 
 ```json
 {
@@ -595,7 +600,7 @@ Open your text editor and create a **new file**. 📋 Copy and paste this into t
 }
 ```
 
-**Save the file as `s3-notification.json`** in your `workshop-lab-2c` folder on your Desktop.
+**Save** the file (**Ctrl+S** / **Cmd+S**).
 
 > **What does this file do?** It tells S3: "Whenever a new file ending in `.txt` is uploaded to this bucket, send a notification to the `workshop-processor` Lambda function."
 
@@ -621,7 +626,7 @@ The browser has a security feature called CORS that blocks web pages from talkin
 
 **Step 9a: Create the CORS configuration file**
 
-Open your text editor and create a **new file**. 📋 Copy and paste this into the file (no placeholders to replace here):
+In the VS Code file tree, create a **New File** named `cors.json`. 📋 Copy and paste this into it (no placeholders to replace here):
 
 ```json
 {
@@ -636,7 +641,7 @@ Open your text editor and create a **new file**. 📋 Copy and paste this into t
 }
 ```
 
-**Save the file as `cors.json`** in your `workshop-lab-2c` folder on your Desktop.
+**Save** the file (**Ctrl+S** / **Cmd+S**).
 
 > **What does this file do?** It says: "Allow any web page to upload files (PUT) and download files (GET) from this bucket."
 
@@ -674,7 +679,7 @@ aws s3api put-public-access-block --bucket <OUTPUT_BUCKET> --public-access-block
 
 **Step 10b: Create the public read policy file**
 
-Open your text editor and create a **new file**. 📋 Copy and paste this, **replacing `<OUTPUT_BUCKET>`** with your actual output bucket name:
+In the VS Code file tree, create a **New File** named `output-policy.json`. 📋 Copy and paste this into it, **replacing `<OUTPUT_BUCKET>`** with your actual output bucket name:
 
 ```json
 {
@@ -691,7 +696,7 @@ Open your text editor and create a **new file**. 📋 Copy and paste this, **rep
 }
 ```
 
-**Save the file as `output-policy.json`** in your `workshop-lab-2c` folder on your Desktop.
+**Save** the file (**Ctrl+S** / **Cmd+S**).
 
 > **⚠️ Make sure** you replaced `<OUTPUT_BUCKET>` with your actual bucket name inside the file before saving.
 
@@ -725,7 +730,7 @@ aws s3api put-public-access-block --bucket <WEBSITE_BUCKET> --public-access-bloc
 
 **Step 11a: Create the website bucket policy file**
 
-Open your text editor and create a **new file**. 📋 Copy and paste this into the file, **replacing `<WEBSITE_BUCKET>`** with your actual website bucket name:
+In the VS Code file tree, create a **New File** named `website-policy.json`. 📋 Copy and paste this into it, **replacing `<WEBSITE_BUCKET>`** with your actual website bucket name:
 
 ```json
 {
@@ -742,7 +747,7 @@ Open your text editor and create a **new file**. 📋 Copy and paste this into t
 }
 ```
 
-**Save the file as `website-policy.json`** in your `workshop-lab-2c` folder on your Desktop.
+**Save** the file (**Ctrl+S** / **Cmd+S**).
 
 > **What does this file do?** It tells S3: "Allow anyone on the internet to read (view) files in this bucket." This is what makes your website publicly accessible.
 
@@ -756,7 +761,7 @@ aws s3api put-bucket-policy --bucket <WEBSITE_BUCKET> --policy file://website-po
 
 **Step 11b: Create the website HTML file**
 
-Open your text editor and create a **new file**. 📋 Copy and paste this entire block into the file, **replacing `<FUNCTION_URL>` and `<OUTPUT_BUCKET>`** with your actual values:
+In the VS Code file tree, create a **New File** named `index.html`. 📋 Copy and paste this entire block into it, **replacing `<FUNCTION_URL>` and `<OUTPUT_BUCKET>`** with your actual values:
 
 ```html
 <!DOCTYPE html>
@@ -890,7 +895,7 @@ Open your text editor and create a **new file**. 📋 Copy and paste this entire
 </html>
 ```
 
-**Save the file as `index.html`** in your `workshop-lab-2c` folder on your Desktop.
+**Save** the file (**Ctrl+S** / **Cmd+S**).
 
 > **What does this file do?** This is your complete web application — it provides a text box for input, calls your Lambda function to get a presigned upload URL, uploads the file to S3, waits for processing, and displays the result. All in one HTML file.
 
@@ -1012,17 +1017,21 @@ aws iam delete-role --role-name workshop-pipeline-role
 
 ### Step 5: Delete Local Files
 
+> **⚠️ Close VS Code first.** If VS Code still has the `workshop-lab-2c` folder open, the delete will fail — especially on Windows. Choose **File → Close Folder** or quit VS Code before running the commands below. The commands also move you to your home directory (`cd ~`) first so the terminal isn't sitting inside the folder it's deleting.
+
 Remove the project folder you created for this lab:
 
 **macOS / Linux:**
 
 ```bash
+cd ~
 rm -rf ~/Desktop/workshop-lab-2c
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
+cd ~
 Remove-Item -Recurse -Force ~\Desktop\workshop-lab-2c
 ```
 
