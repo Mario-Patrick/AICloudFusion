@@ -553,7 +553,11 @@ aws lambda create-function-url-config --function-name workshop-presign --auth-ty
 aws lambda add-permission --function-name workshop-presign --statement-id FunctionURLAllowPublicAccess --action lambda:InvokeFunctionUrl --principal "*" --function-url-auth-type NONE --region us-east-1
 ```
 
-> **What does this do?** For a Function URL with `--auth-type NONE`, this one permission — `lambda:InvokeFunctionUrl` granted to `*` — is what lets the public call the function through its URL. That is all a Function URL needs; you do **not** also grant the broader `lambda:InvokeFunction`, which is used for other invoke paths (like the SDK or the S3 trigger you set up in Step 8) rather than the URL.
+```
+aws lambda add-permission --function-name workshop-presign --statement-id AllowPublicInvoke --action lambda:InvokeFunction --principal "*" --region us-east-1
+```
+>[!CAUTION]
+>**lambda:InvokeFunction is the general "run this function" permission — Lambda Function URLs require both: InvokeFunctionUrl to authorize the URL endpoint itself, and InvokeFunction to actually execute the function behind it. Without both granted to '*', public access is denied.**
 
 > **⏳ Wait 1–2 minutes** for the permission to propagate before testing.
 
