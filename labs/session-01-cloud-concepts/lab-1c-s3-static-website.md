@@ -528,8 +528,11 @@ The SAA exam frequently tests S3 concepts: storage classes, bucket policies, sta
 ---
 
 ## Cleanup
+>[!IMPORTANT]
+>**⚠️** Always clean up resources after completing a lab so they do not incur charges. Follow these steps in order.
 
-**⚠️ Important:** Always clean up resources after completing a lab so they do not incur charges. Follow these steps in order.
+>[!NOTE]
+>**🔗 Continuing to Session 2? Keep your website running.** In **Lab 2C**, you will extend this same website by adding a serverless "File Processor" page to it. If you are moving on to Session 2, **skip this cleanup for now and leave your site live** — the bucket, the HTML files, and public access should all stay in place. Leaving a tiny static site hosted on S3 costs effectively **$0.00** (fractions of a cent per month). Come back and run the steps below only when you are completely finished with the Cloud Basics track.
 
 ### Step 1: Empty the Bucket
 
