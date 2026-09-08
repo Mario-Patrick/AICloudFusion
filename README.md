@@ -46,6 +46,7 @@ Work through the labs in order (A → B → C). Each lab includes:
 | 10 | Chatbot Observability | [Lab 10A: Deploy Chatbot](labs/session-10-chatbot-observability/lab-10a-deploy-chatbot.md) · [Lab 10B: Monitor Dependencies](labs/session-10-chatbot-observability/lab-10b-monitor-dependencies.md) · [Lab 10C: Resilient Fallback](labs/session-10-chatbot-observability/lab-10c-resilient-fallback.md) |
 | 11 | AI Engineering | [Lab 11A: Bedrock Chatbot](labs/session-11-ai-engineering/lab-11a-bedrock-chatbot.md) · [Lab 11B: Prompt Engineering](labs/session-11-ai-engineering/lab-11b-prompt-engineering.md) · [Lab 11C: AI Monitoring](labs/session-11-ai-engineering/lab-11c-ai-monitoring.md) |
 | 12 | RAG, Guardrails & AI Capstone | [Session Overview](labs/session-12-rag-guardrails-capstone/README.md) · [Lab 12A: RAG Knowledge Base](labs/session-12-rag-guardrails-capstone/lab-12a-rag-knowledge-base.md) · [Lab 12B: Bedrock Guardrails](labs/session-12-rag-guardrails-capstone/lab-12b-bedrock-guardrails.md) · [Lab 12C: Capstone — Cost Governance](labs/session-12-rag-guardrails-capstone/lab-12c-capstone-cost-governance.md) |
+| 13 | Capstone — Build Something You Own | [Capstone Guide](labs/session-13-capstone/README.md) *(no labs — a self-directed project)* |
 
 ## Prerequisites
 
